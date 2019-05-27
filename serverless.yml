@@ -8,5 +8,9 @@ provider:
   region: eu-central-1
 
 functions:
-  hello:
-    handler: handler.hello
+  extract:
+    handler: handler.extract_title
+    events:
+      - http:
+          path: extract-title
+          method: POST
