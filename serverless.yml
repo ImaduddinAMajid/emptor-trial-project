@@ -2,6 +2,22 @@ service: emptor-docs-processing
 
 frameworkVersion: ">=1.1.0 <2.0.0"
 
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - node_modules/**
+    - .requirements/**
+    - README.md
+    - package.json
+    - package-lock.json
+    - requirements.txt
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
 provider:
   name: aws
   runtime: python3.7
@@ -13,4 +29,5 @@ functions:
     events:
       - http:
           path: extract-title
-          method: POST
+          method: post
+
