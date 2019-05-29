@@ -18,7 +18,7 @@ Install serverless with the following command:
 npm install -g serverless
 ```
 
-Setup your AWS credentials by following the steps described [here](https://github.com/serverless/serverless/blob/master/docs/providers/aws/guide/credentials.md) or [watch this video](https://github.com/serverless/serverless/blob/master/docs/providers/aws/guide/credentials.md).
+Setup your AWS credentials by following the steps described [here](https://github.com/serverless/serverless/blob/master/docs/providers/aws/guide/credentials.md) or [watch this video](https://www.youtube.com/watch?v=HSd9uYj2LJA).
 
 ## Deploy
 
