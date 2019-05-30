@@ -8,7 +8,7 @@ plugins:
 package:
   exclude:
     - node_modules/**
-    - .requirements/**
+    - requirements/**
     - README.md
     - package.json
     - package-lock.json
@@ -17,6 +17,7 @@ package:
 custom:
   pythonRequirements:
     dockerizePip: non-linux
+    fileName: requirements/requirements-dev.txt
 
 provider:
   name: aws
