@@ -25,7 +25,12 @@ Install Python dependencies using this command:
 pip install -r requirements/requirements-dev.txt
 ```
 
-if you need additional packages, write them in `requirements/requirements-dev.in`
+if you need additional packages, write them in `requirements/requirements-dev.in` and run the following
+command
+
+```
+pip-compile --output-file requirements/requirements-dev.txt requirements/requirements-dev.in
+```
 
 ## Deploy
 
