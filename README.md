@@ -44,5 +44,15 @@ serverless deploy
 To extract the title from a URL, use the following commands on your terminal:
 
 ```
-curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/extract-title?url=YOUR_URL'
+curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/extract-title?' --data
+'{"url": "YOUR ADAM"}'
+```
+
+
+## Testing
+
+To test the lambda function and other AWS resources, we can use `pytest` to manage the unit testing. Simply run
+
+```
+pytest
 ```

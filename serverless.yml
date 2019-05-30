@@ -25,10 +25,10 @@ provider:
   region: eu-central-1
 
 functions:
-  extract:
-    handler: handler.extract_title
+  create:
+    handler: title/create.create
     events:
       - http:
-          path: extract-title
+          path: title
           method: post
 

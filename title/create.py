@@ -4,20 +4,21 @@ import re
 import requests
 
 
-def extract_title(event, context):
+def create(event, context):
+    data = json.loads(event["body"])
 
     body = {}
 
-    if "queryStringParameters" not in event:
-        body['message'] = "No query string is given"
+    if data is None:
+        body["message"] = "No query string is given"
         return create_response(400, body)
 
-    if "url" not in event["queryStringParameters"]:
-        body['message'] = "URL is not given"
+    if "url" not in data:
+        body["message"] = "URL is not given"
         return create_response(400, body)
 
     # Get URL from the query string parameters
-    url = event["queryStringParameters"]["url"]
+    url = data["url"]
 
     try:
         html = requests.get(url)
