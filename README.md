@@ -20,6 +20,13 @@ npm install -g serverless
 
 Setup your AWS credentials by following the steps described [here](https://github.com/serverless/serverless/blob/master/docs/providers/aws/guide/credentials.md) or [watch this video](https://www.youtube.com/watch?v=HSd9uYj2LJA).
 
+Install Python dependencies using this command:
+```
+pip install -r requirements/requirements-dev.txt
+```
+
+if you need additional packages, write them in `requirements/requirements-dev.in`
+
 ## Deploy
 
 To deploy simply run
