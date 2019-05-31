@@ -73,6 +73,14 @@ functions:
           path: identifier
           method: post
           cors: true
+  getById:
+    handler: identifier/get.get
+    description: Get DynamoDB record by request identifier
+    events:
+      - http:
+          path: identifier/{request_id}
+          method: get
+          cors: true
 
 resources:
   Resources:
