@@ -17,6 +17,7 @@ package:
 custom:
   app_acronym: emptor-body-response
   default_stage: test
+  dynamodb_host: https://dynamodb.${self:custom.region}.amazonaws.com
   stage: ${opt:stage, self:custom.default_stage}
   region: ${opt:region, self:provider.region}
   s3_bucket: ${opt:s3_bucket, self:custom.app_acronym}
@@ -35,11 +36,24 @@ provider:
     REGION: ${self:custom.region}
     S3_BUCKET: ${self:custom.s3_bucket}
     S3_KEY_BASE: ${self:custom.s3_key_base}
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_HOST: ${self:custom.dynamodb_host}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - s3:*
       Resource: ${self:custom.s3_role_resource}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
 
 functions:
   create:
@@ -72,4 +86,20 @@ resources:
               },
               Principal: '*'
             },
-]
+          ]
+    TitleDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Delete
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: title_id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: title_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
