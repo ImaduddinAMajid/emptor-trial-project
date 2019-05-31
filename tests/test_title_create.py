@@ -16,18 +16,10 @@ KEY_BASE = os.environ["S3_KEY_BASE"]
 
 
 def test_title_create():
-    os.environ["S3_BUCKET"] = "emptor-body-response"
-    body = {"url": "https://www.emptor.io"}
-    response = create(api_gateway_event("POST", body=body), context)
+    body = {"identifier": "38d63cc8-83f0-11e9-8f52-26d1ff3e9c00"}
+    response = create(lambda_invoke_event(body=body), context)
     response_body = json.loads(response["body"])
-    title = response_body["title"]
-    s3_url = response_body["s3URL"]
-    assert response["statusCode"] == 200
-    assert (
-        s3_url
-        == "https://emptor-body-response.s3.amazonaws.com/testEmptor- Home page.html"
-    )
-    assert title == "Emptor- Home page"
+    assert response_body["state"] == "PROCESSED"
 
 
 def test_title_create_null_body():

@@ -50,3 +50,7 @@ def s3_object_created_event(bucket_name, key):
     return {
         "Records": [{"s3": {"object": {"key": key}, "bucket": {"name": bucket_name}}}]
     }
+
+
+def lambda_invoke_event(body):
+    return body
