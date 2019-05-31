@@ -9,9 +9,8 @@ import requests
 from title.title_model import TitleModel
 from utils import create_response
 
-
-s3_client = boto3.client("s3")
-
+function_name = os.environ['PROCESSING_LAMBDA']
+lambda_client = boto3.client('lambda')
 
 def create(event, context):
     identifier = uuid.uuid1().__str__()
@@ -38,6 +37,11 @@ def create(event, context):
     title_model.request_id = identifier
     title_model.url = url
     title_model.save()
+
+    # Invoke processing lambda (Title extraction)
+    lambda_client.invoke(FunctionName=function_name,
+                         InvocationType='Event',
+                         Payload=json.dumps(body))
 
     response = create_response(body=body)
 
