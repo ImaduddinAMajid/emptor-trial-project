@@ -44,3 +44,9 @@ def api_gateway_event(method="GET", body=None, query_string_parameters=None):
         },
         "stageVariables": {},
     }
+
+
+def s3_object_created_event(bucket_name, key):
+    return {
+        "Records": [{"s3": {"object": {"key": key}, "bucket": {"name": bucket_name}}}]
+    }
