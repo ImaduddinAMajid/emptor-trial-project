@@ -11,6 +11,7 @@ This project is AWS Lambda-based project to process documents from the web. In t
 * Python >= 3.7.3
 * Serverless >= 1.43.0 
 * requests >= 2.22.0
+* pynamodb >= 3.3.3
 
 Install serverless with the following command:
 
@@ -45,7 +46,7 @@ To extract the title from a URL, use the following commands on your terminal:
 
 ```
 curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/extract-title?' --data
-'{"url": "YOUR ADAM"}'
+'{"url": "YOUR URL"}'
 ```
 
 
