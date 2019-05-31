@@ -15,6 +15,14 @@ package:
     - requirements.txt
 
 custom:
+  app_acronym: emptor-body-response
+  default_stage: test
+  stage: ${opt:stage, self:custom.default_stage}
+  region: ${opt:region, self:provider.region}
+  s3_bucket: ${opt:s3_bucket, self:custom.app_acronym}
+  s3_key_base: ${opt:s3_key_base, self:custom.stage}
+  s3_bucket_arn: arn:aws:s3:::${self:custom.s3_bucket}
+  s3_role_resource: ${self:custom.s3_bucket_arn}/${self:custom.s3_key_base}/*
   pythonRequirements:
     dockerizePip: non-linux
     fileName: requirements/requirements-dev.txt
@@ -23,6 +31,15 @@ provider:
   name: aws
   runtime: python3.7
   region: eu-central-1
+  environment:
+    REGION: ${self:custom.region}
+    S3_BUCKET: ${self:custom.s3_bucket}
+    S3_KEY_BASE: ${self:custom.s3_key_base}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: ${self:custom.s3_role_resource}
 
 functions:
   create:
@@ -31,4 +48,28 @@ functions:
       - http:
           path: title
           method: post
+          cors: true
 
+resources:
+  Resources:
+    ResponseBodyBucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET}
+    ResponseBodyPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ResponseBodyBucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement: [
+            {
+              Action: ['s3:GetObject', 's3:PutObject'],
+              Effect: 'Allow',
+              Resource: {
+                Fn::Join: ['', ['arn:aws:s3:::', { Ref: 'ResponseBodyBucket' }, '/*']],
+              },
+              Principal: '*'
+            },
+]
