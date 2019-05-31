@@ -3,7 +3,7 @@ import json
 
 def api_gateway_event(method="GET", body=None, query_string_parameters=None):
     return {
-        "body": json.dumps(body),
+        "body": json.dumps(body) if body else None,
         "method": method,
         "principalId": "",
         "stage": "dev",
