@@ -7,6 +7,7 @@ import boto3
 import requests
 
 from title.title_model import TitleModel
+from utils import create_response
 
 
 s3_client = boto3.client("s3")
@@ -51,13 +52,6 @@ def create(event, context):
     # Store response body to S3 Bucket
     object_name = KEY_BASE + f"{title}.html"
     body["s3URL"] = store_to_s3_bucket(html, BUCKET, object_name)
-
-    # Store title as DynamoDB record
-    title_model = TitleModel()
-    title_model.title_id = uuid.uuid1().__str__()
-    title_model.title = title
-    title_model.save()
-
 
     response = create_response(body=body)
 

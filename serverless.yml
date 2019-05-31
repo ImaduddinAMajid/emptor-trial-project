@@ -15,7 +15,7 @@ package:
     - requirements.txt
 
 custom:
-  app_acronym: emptor-body-response
+  app_acronym: emptor-response-bucket
   default_stage: test
   dynamodb_host: https://dynamodb.${self:custom.region}.amazonaws.com
   stage: ${opt:stage, self:custom.default_stage}
@@ -54,7 +54,6 @@ provider:
         - dynamodb:DescribeTable
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
-
 functions:
   create:
     handler: title/create.create
@@ -63,10 +62,17 @@ functions:
           path: title
           method: post
           cors: true
+  createId:
+    handler: identifier/create.create
+    events:
+      - http:
+          path: identifier
+          method: post
+          cors: true
 
 resources:
   Resources:
-    ResponseBodyBucket:
+    ResponseBucket:
       Type: 'AWS::S3::Bucket'
       Properties:
         BucketName: ${self:provider.environment.S3_BUCKET}
@@ -74,7 +80,7 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         Bucket:
-          Ref: ResponseBodyBucket
+          Ref: ResponseBucket
         PolicyDocument:
           Version: "2012-10-17"
           Statement: [
@@ -82,22 +88,22 @@ resources:
               Action: ['s3:GetObject', 's3:PutObject'],
               Effect: 'Allow',
               Resource: {
-                Fn::Join: ['', ['arn:aws:s3:::', { Ref: 'ResponseBodyBucket' }, '/*']],
+                Fn::Join: ['', ['arn:aws:s3:::', { Ref: 'ResponseBucket' }, '/*']],
               },
               Principal: '*'
             },
           ]
-    TitleDynamoDbTable:
+    TitleDynamoTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: title_id
+            AttributeName: request_id
             AttributeType: S
         KeySchema:
           -
-            AttributeName: title_id
+            AttributeName: request_id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

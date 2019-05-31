@@ -45,9 +45,16 @@ serverless deploy
 To extract the title from a URL, use the following commands on your terminal:
 
 ```
-curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/extract-title?' --data
+curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/title' --data
 '{"url": "YOUR URL"}'
 ```
+
+To generate request identifier
+```
+curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/identifier' --data
+'{"url": "YOUR URL"}'
+```
+
 
 
 ## Testing

@@ -1,8 +1,15 @@
-import os
 from datetime import datetime
+from enum import Enum
+import os
+
 
 from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute
 from pynamodb.models import Model
+
+
+class State(Enum):
+    PENDING = 1
+    PROCESSED = 2
 
 class TitleModel(Model):
     class Meta:
@@ -13,13 +20,15 @@ class TitleModel(Model):
             region = 'eu-central-1'
             host = os.environ['DYNAMODB_HOST']
 
-    title_id = UnicodeAttribute(hash_key=True, null=False)
-    title = UnicodeAttribute(null=False)
+    request_id = UnicodeAttribute(hash_key=True, null=False)
+    title = UnicodeAttribute(null=True)
+    state = UnicodeAttribute(null=False, default=State.PENDING.name)
+    url = UnicodeAttribute(null=False)
     createdAt = UTCDateTimeAttribute(null=False, default=datetime.now().astimezone())
     updatedAt = UTCDateTimeAttribute(null=False, default=datetime.now().astimezone())
 
     def __str__(self):
-        return f'title_id: {self.title_id}, title: {self.title}'
+        return f'request_id: {self.request_id}, title: {self.title}'
 
     def save(self, conditional_operator=None, **expected_values):
         try:
