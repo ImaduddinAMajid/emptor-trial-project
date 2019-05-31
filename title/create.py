@@ -6,20 +6,20 @@ import boto3
 import requests
 
 
-BUCKET = os.environ["S3_BUCKET"]
-KEY_BASE = os.environ["S3_KEY_BASE"]
-
 s3_client = boto3.client("s3")
 
 
 def create(event, context):
-    data = json.loads(event["body"])
+    BUCKET = os.environ["S3_BUCKET"]
+    KEY_BASE = os.environ["S3_KEY_BASE"]
 
     body = {}
 
-    if data is None:
-        body["message"] = "No query string is given"
+    if not event["body"]:
+        body["message"] = "Request body not found"
         return create_response(400, body)
+
+    data = json.loads(event["body"])
 
     if "url" not in data:
         body["message"] = "URL is not given"
@@ -45,11 +45,11 @@ def create(event, context):
 
     body = {"title": title}
 
-    response = create_response(body=body)
-
     # Store response body to S3 Bucket
     object_name = KEY_BASE + f"{title}.html"
-    store_to_s3_bucket(html, BUCKET, object_name)
+    body["s3URL"] = store_to_s3_bucket(html, BUCKET, object_name)
+
+    response = create_response(body=body)
 
     return response
 
@@ -68,5 +68,7 @@ def create_response(status_code=200, body=None):
     }
 
 
-def store_to_s3_bucket(response_body, bucket, object_name=None):
-    return s3_client.put_object(Body=response_body, Bucket=bucket, Key=object_name)
+def store_to_s3_bucket(response_body, bucket_name, object_name):
+    s3_client.put_object(Body=response_body, Bucket=bucket_name, Key=object_name)
+    url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
+    return url
