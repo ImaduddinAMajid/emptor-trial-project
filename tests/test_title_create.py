@@ -16,7 +16,7 @@ KEY_BASE = os.environ["S3_KEY_BASE"]
 
 
 def test_title_create_with_dynamodb_stream():
-    body = {"identifier": "b9cd7b7c-845c-11e9-aaef-420c180872f3"}
+    body = {"identifier": "73b0f612-8463-11e9-9e6b-861c457255d3"}
     response = create(dynamodb_stream_event(body=body), context)
     response_body = json.loads(response["body"])
     assert response_body["state"] == "PROCESSED"

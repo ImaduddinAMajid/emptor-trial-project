@@ -14,7 +14,6 @@ from utils import create_response
 
 
 s3_client = boto3.client("s3")
-dynamodb = boto3.resource("dynamodb")
 
 
 def create(event, context):
@@ -33,6 +32,11 @@ def create(event, context):
         body = {"message": "Record not found"}
         logger.error(f"{body['message']}")
         return create_response(404, body)
+
+    if title_model.state == State.PROCESSED.name:
+        body = {"message": "Record is already processed."}
+        logger.error(f"{body['message']}")
+        return create_response(body)
 
     # Get URL from DynamoDB record
     url = title_model.url
@@ -56,10 +60,6 @@ def create(event, context):
     # Store response body to S3 Bucket
     object_name = KEY_BASE + f"{title}.html"
     s3_url = store_to_s3_bucket(html, BUCKET, object_name)
-
-    title_model.title = title
-    title_model.s3_url = s3_url
-    title_model.state = State.PROCESSED.name
 
     title_model.update(
         attributes={
