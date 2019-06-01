@@ -73,7 +73,7 @@ functions:
          startingPosition: LATEST
          arn:
            Fn::GetAtt:
-             - ImagesTable
+             - TitleDynamoTable
              - StreamArn
   createId:
     handler: identifier/create.create
