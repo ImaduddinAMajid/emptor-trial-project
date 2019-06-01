@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import re
@@ -5,6 +6,7 @@ import uuid
 
 import boto3
 import requests
+from pynamodb.exceptions import DoesNotExist
 
 from log_config import logger
 from title.title_model import TitleModel, State
@@ -12,7 +14,6 @@ from utils import create_response
 
 
 s3_client = boto3.client("s3")
-dynamodb = boto3.resource("dynamodb")
 
 
 def create(event, context):
@@ -23,21 +24,28 @@ def create(event, context):
 
     body = {}
 
-    if "identifier" not in event:
-        body["message"] = "Request id not found"
-        return create_response(400, body)
+    request_id = event["Records"][0]["dynamodb"]["Keys"]["request_id"]["S"]
 
-    request_id = event["identifier"]
-    title_model = TitleModel.get(hash_key=request_id)
+    try:
+        title_model = TitleModel.get(hash_key=request_id)
+    except DoesNotExist:
+        body = {"message": "Record not found"}
+        logger.error(f"{body['message']}")
+        return create_response(404, body)
+
+    if title_model.state == State.PROCESSED.name:
+        body = {"message": "Record is already processed."}
+        logger.error(f"{body['message']}")
+        return create_response(body)
 
     # Get URL from DynamoDB record
     url = title_model.url
 
     try:
         html = requests.get(url)
-
     except:
         body = {"message": "Please enter a valid URL"}
+        logger.error(f"{body['message']}")
         return create_response(400, body)
 
     html = html.text
@@ -46,17 +54,21 @@ def create(event, context):
 
     if not title:
         body = {"message": "Title not found. Please check your URL."}
+        logger.error(f"{body['message']}")
         return create_response(400, body)
 
     # Store response body to S3 Bucket
     object_name = KEY_BASE + f"{title}.html"
     s3_url = store_to_s3_bucket(html, BUCKET, object_name)
 
-    title_model.title = title
-    title_model.s3_url = s3_url
-    title_model.state = State.PROCESSED.name
-
-    title_model.save()
+    title_model.update(
+        attributes={
+            "title": {"value": title, "action": "PUT"},
+            "s3_url": {"value": s3_url, "action": "PUT"},
+            "state": {"value": State.PROCESSED.name, "action": "PUT"},
+            "updatedAt": {"value": datetime.now().astimezone(), "action": "PUT"},
+        }
+    )
 
     response = create_response(body=dict(title_model))
 
