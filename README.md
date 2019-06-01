@@ -52,7 +52,7 @@ curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/identi
 
 To query DynamoDB table for a given identifier, simply run this command
 ```
-curl -X POST 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/identifier/{request_id}'
+curl -X GET 'https://XXXXXXXX.execute-api.eu-central-1.amazonaws.com/dev/identifier/{request_id}'
 ```
 
 
