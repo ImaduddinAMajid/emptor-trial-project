@@ -38,11 +38,6 @@ def create(event, context):
     title_model.url = url
     title_model.save()
 
-    # Invoke processing lambda (Title extraction)
-    lambda_client.invoke(FunctionName=function_name,
-                         InvocationType='Event',
-                         Payload=json.dumps(body))
-
     response = create_response(body=body)
 
     return response

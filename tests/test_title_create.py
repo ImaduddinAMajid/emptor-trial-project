@@ -15,9 +15,9 @@ BUCKET = os.environ["S3_BUCKET"]
 KEY_BASE = os.environ["S3_KEY_BASE"]
 
 
-def test_title_create():
-    body = {"identifier": "38d63cc8-83f0-11e9-8f52-26d1ff3e9c00"}
-    response = create(lambda_invoke_event(body=body), context)
+def test_title_create_with_dynamodb_stream():
+    body = {"identifier": "b9cd7b7c-845c-11e9-aaef-420c180872f3"}
+    response = create(dynamodb_stream_event(body=body), context)
     response_body = json.loads(response["body"])
     assert response_body["state"] == "PROCESSED"
 

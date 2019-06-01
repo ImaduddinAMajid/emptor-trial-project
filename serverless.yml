@@ -20,11 +20,12 @@ custom:
   dynamodb_host: https://dynamodb.${self:custom.region}.amazonaws.com
   stage: ${opt:stage, self:custom.default_stage}
   region: ${opt:region, self:provider.region}
-  s3_bucket: ${opt:s3_bucket, self:custom.app_acronym}
+  s3_bucket: ${opt:s3_bucket, self:custom.app_acronym}-${self:provider.stage}
   s3_key_base: ${opt:s3_key_base, self:custom.stage}
   s3_bucket_arn: arn:aws:s3:::${self:custom.s3_bucket}
   s3_role_resource: ${self:custom.s3_bucket_arn}/${self:custom.s3_key_base}/*
-  lambda_arn: arn:aws:lambda:::${self:provider.environment.IDENTIFIER_LAMBDA}
+  lambda_arn: arn:aws:lambda:::${self:provider.environment.PROCESSING_LAMBDA}
+  dynamodb_table_arn: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}
   pythonRequirements:
     dockerizePip: non-linux
     fileName: requirements/requirements-dev.txt
@@ -33,7 +34,7 @@ provider:
   name: aws
   runtime: python3.7
   region: eu-central-1
-  stage: dev1
+  stage: prod
   environment:
     REGION: ${self:custom.region}
     S3_BUCKET: ${self:custom.s3_bucket}
@@ -56,12 +57,11 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-        - lambda:InvokeAsync
-      Resource: "*"
+        - dynamodb:ListStreams
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+      Resource: ${self:custom.dynamodb_table_arn}
 
 functions:
   create:
@@ -75,6 +75,15 @@ functions:
            Fn::GetAtt:
              - TitleDynamoTable
              - StreamArn
+    iamRoleStatements:
+      - Effect: Allow
+        Action: 
+          - dynamodb:ListStreams
+          - dynamodb:DescribeTable
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${self:custom.dynamodb_table_arn}
+
   createId:
     handler: identifier/create.create
     events:
@@ -131,4 +140,4 @@ resources:
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
         StreamSpecification:
-          StreamViewType: NEW_IMAGE
+          StreamViewType: KEYS_ONLY

@@ -54,3 +54,25 @@ def s3_object_created_event(bucket_name, key):
 
 def lambda_invoke_event(body):
     return body
+
+
+def dynamodb_stream_event(body):
+    return {
+        "Records": [
+            {
+                "eventID": "7c948c6b4f6b8015b5f6a7e027ad2604",
+                "eventName": "INSERT",
+                "eventVersion": "1.1",
+                "eventSource": "aws:dynamodb",
+                "awsRegion": "eu-central-1",
+                "dynamodb": {
+                    "ApproximateCreationDateTime": 1559376924.0,
+                    "Keys": {"request_id": {"S": body["identifier"]}},
+                    "SequenceNumber": "100000000007020339446",
+                    "SizeBytes": 46,
+                    "StreamViewType": "KEYS_ONLY",
+                },
+                "eventSourceARN": "arn:aws:dynamodb:eu-central-1:027224929341:table/emptor-docs-processing-prod/stream/2019-06-01T08:12:06.020",
+            }
+        ]
+    }
